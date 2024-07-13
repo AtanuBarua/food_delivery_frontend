@@ -1,29 +1,131 @@
 <template>
-    <div class="h-screen bg-[url('../assets/cook.jpg')] bg-no-repeat bg-contain flex justify-center items-center">
-        <div class="mx-auto w-[25rem] h-[28rem] bg-white shadow-xl rounded-md p-7">
-            <div class="flex flex-col">
-                <h3 class="text-xl font-bold mb-5">Ready to grow your business?</h3>
+  <div
+    class="h-screen bg-[url('../assets/cook.jpg')] bg-no-repeat bg-contain flex justify-center items-center"
+  >
+    <div class="mx-auto w-[25rem] h-[32rem] bg-white shadow-xl rounded-md p-7">
+      <div class="flex flex-col">
+        <h3 class="text-xl font-bold mb-5">Ready to grow your business?</h3>
 
-                <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900">Business owner first name
-                    <span class="text-red-600">*</span></label>
-                <input type="text" id="first_name"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-                <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900">Business owner last name
-                    <span class="text-red-600">*</span></label>
-                <input type="text" id="first_name"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-                <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900">Business email <span
-                        class="text-red-600">*</span></label>
-                <input type="text" id="first_name"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-                <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900">Phone number <span
-                        class="text-red-600">*</span></label>
-                <input type="text" id="first_name"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-                <button class="bg-fuchsia-600 mt-5 rounded-md p-3 text-white">
-                    Get started
-                </button>
-            </div>
-        </div>
+        <Form @submit="register" class="flex flex-col">
+          <label for="name" class="block mb-2 text-sm font-medium text-gray-900"
+            >Business owner full name <span class="text-red-600">*</span></label
+          >
+          <Field
+            name="name"
+            type="text"
+            id="name"
+            :rules="validateName"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          />
+          <ErrorMessage class="text-red-600 text-xs" name="name" />
+          <label
+            for="email"
+            class="block mb-2 text-sm font-medium text-gray-900"
+            >Business email <span class="text-red-600">*</span></label
+          >
+          <Field
+            name="email"
+            type="text"
+            id="email"
+            :rules="validateEmail"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          />
+          <ErrorMessage class="text-red-600 text-xs" name="email" />
+          <label
+            for="phone"
+            class="block mb-2 text-sm font-medium text-gray-900"
+            >Phone number <span class="text-red-600">*</span></label
+          >
+          <Field
+            name="phone"
+            type="text"
+            id="phone"
+            :rules="validatePhone"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          />
+          <ErrorMessage class="text-red-600 text-xs" name="phone" />
+          <label
+            for="password"
+            class="block mb-2 text-sm font-medium text-gray-900"
+            >Password <span class="text-red-600">*</span></label
+          >
+          <Field
+            name="password"
+            type="text"
+            id="password"
+            :rules="validatePassword"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          />
+          <ErrorMessage class="text-red-600 text-xs" name="password" />
+          <button class="bg-fuchsia-600 mt-5 rounded-md p-3 text-white">
+            Get started
+          </button>
+        </Form>
+      </div>
     </div>
+  </div>
 </template>
+<script>
+import { Form, Field, ErrorMessage } from "vee-validate";
+
+export default {
+  components: {
+    Form,
+    Field,
+    ErrorMessage,
+  },
+  data() {
+    return {
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+    };
+  },
+  methods: {
+    validateName(value) {
+      if (!value) {
+        return "This field is required";
+      }
+      return true;
+    },
+    validateEmail(value) {
+      if (!value) {
+        return "This field is required";
+      }
+      const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
+      if (!regex.test(value)) {
+        return "This field must be a valid email";
+      }
+      return true;
+    },
+    validatePhone(value) {
+      console.log(typeof value);
+      if (!value) {
+        return "This field is required";
+      }
+      const regex = /^[0-9]/i;
+      if (!regex.test(value)) {
+        return "This field must be a numeric";
+      }
+      if (value.length !== 10) {
+        return "Phone number must be 10 digits";
+      }
+      
+      return true;
+    },
+    validatePassword(value) {
+      if (!value) {
+        return "This field is required";
+      }
+      if (value.length < 6) {
+        return "Password must have to minumum 6 characters";
+      }
+      return true;
+    },
+    register(values) {
+      console.log(values);
+    },
+  },
+};
+</script>
