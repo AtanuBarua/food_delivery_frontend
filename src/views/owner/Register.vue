@@ -51,13 +51,16 @@
           >
           <Field
             name="password"
-            type="text"
+            type="password"
             id="password"
             :rules="validatePassword"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           />
           <ErrorMessage class="text-red-600 text-xs" name="password" />
-          <button class="bg-fuchsia-600 mt-5 rounded-md p-3 text-white">
+          <button
+            :disabled="disableSubmitBtn"
+            class="bg-fuchsia-600 mt-5 rounded-md p-3 text-white disabled:bg-fuchsia-400"
+          >
             Get started
           </button>
         </Form>
@@ -67,6 +70,7 @@
 </template>
 <script>
 import { Form, Field, ErrorMessage } from "vee-validate";
+import { useToast } from "vue-toastification";
 
 export default {
   components: {
@@ -80,7 +84,12 @@ export default {
       email: "",
       phone: "",
       password: "",
+      disableSubmitBtn: false,
+      toast: null
     };
+  },
+  created() {
+    this.toast = useToast();
   },
   methods: {
     validateName(value) {
@@ -100,7 +109,6 @@ export default {
       return true;
     },
     validatePhone(value) {
-      console.log(typeof value);
       if (!value) {
         return "This field is required";
       }
@@ -111,7 +119,7 @@ export default {
       if (value.length !== 10) {
         return "Phone number must be 10 digits";
       }
-      
+
       return true;
     },
     validatePassword(value) {
@@ -123,8 +131,18 @@ export default {
       }
       return true;
     },
-    register(values) {
-      console.log(values);
+    async register(values) {
+      this.disableSubmitBtn = true;
+      await this.$axios
+        .post("/api/owner/register", values)
+        .then((res) => {
+          this.toast.success(res.data.message);
+        })
+        .catch((err) => {
+          console.log(err);
+          this.toast.error(err.response.data.message);
+        });
+      this.disableSubmitBtn = false;
     },
   },
 };
