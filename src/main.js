@@ -8,7 +8,7 @@ import router from './router'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faHouse, faUserSecret } from '@fortawesome/free-solid-svg-icons'
+import { faHouse, faUserSecret, faUtensils, faUtensilSpoon } from '@fortawesome/free-solid-svg-icons'
 import { faTwitter } from '@fortawesome/free-brands-svg-icons'
 import { faClipboard, faUser } from '@fortawesome/free-regular-svg-icons'
 import VueTelInput from 'vue-tel-input';
@@ -17,9 +17,10 @@ import axios from 'axios'
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 
-library.add(faUserSecret, faTwitter, faUser, faHouse, faClipboard)
+library.add(faUserSecret, faTwitter, faUser, faHouse, faClipboard, faUtensils, faUtensilSpoon)
 
 axios.defaults.baseURL = 'http://localhost/foodpanda/backend/public';
+axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
 
 const app = createApp(App)
