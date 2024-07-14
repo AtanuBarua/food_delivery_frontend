@@ -85,7 +85,7 @@ export default {
       phone: "",
       password: "",
       disableSubmitBtn: false,
-      toast: null
+      toast: null,
     };
   },
   created() {
@@ -131,18 +131,18 @@ export default {
       }
       return true;
     },
+
     async register(values) {
-      this.disableSubmitBtn = true;
-      await this.$axios
-        .post("/api/owner/register", values)
-        .then((res) => {
-          this.toast.success(res.data.message);
-        })
-        .catch((err) => {
-          console.log(err);
-          this.toast.error(err.response.data.message);
-        });
-      this.disableSubmitBtn = false;
+      try {
+        this.disableSubmitBtn = true;
+        const res = await this.$axios.post("/api/owner/register", values);
+        this.toast.success(res.data.message);
+        this.disableSubmitBtn = false;
+      } catch (error) {
+        console.log(err);
+        this.toast.error(err.response.data.message);
+        this.disableSubmitBtn = false;
+      }
     },
   },
 };
