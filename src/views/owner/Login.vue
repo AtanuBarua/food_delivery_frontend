@@ -48,12 +48,17 @@
   <script>
   import { Form, Field, ErrorMessage } from "vee-validate";
   import { useToast } from "vue-toastification";
-  
+  import { useOwnerStore } from "@/stores/owner";
+
   export default {
     components: {
       Form,
       Field,
       ErrorMessage,
+    },
+    setup() {
+      const ownerStore = new useOwnerStore();
+      return { ownerStore }
     },
     data() {
       return {
@@ -95,18 +100,18 @@
       async login(formData) {
         try {
           this.disableSubmitBtn = true;
-          await this.$axios.get('/sanctum/csrf-cookie');
-          const res = await this.$axios.post("/api/owner/login", formData);
+          const res = await this.ownerStore.login(formData);
+          console.log(res);
           if (res.data.status_code == 200) {
             this.toast.success(res.data.message);
             this.$router.push({name: 'ownerHome'})
           } else {
             this.toast.error(res.data.message);
           }
-          this.disableSubmitBtn = false;
         } catch (error) {
-          console.log(err);
-          this.toast.error(err.response.data.message);
+          console.log(error);
+          this.toast.error("Something went wrong");
+        } finally {
           this.disableSubmitBtn = false;
         }
       },

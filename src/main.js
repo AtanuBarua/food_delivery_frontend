@@ -16,20 +16,24 @@ import 'vue-tel-input/vue-tel-input.css';
 import axios from 'axios'
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 library.add(faUserSecret, faTwitter, faUser, faHouse, faClipboard, faUtensils, faUtensilSpoon)
 
-axios.defaults.baseURL = 'http://localhost/foodpanda/backend/public';
+axios.defaults.baseURL = 'http://localhost:8000';
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
 
 const app = createApp(App)
+const pinia = createPinia()
+
+pinia.use(piniaPluginPersistedstate)
 
 app.config.globalProperties.$axios = axios;
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(VueTelInput)
 app.use(Toast)
-app.use(createPinia())
+app.use(pinia)
 app.use(router)
 
 app.mount('#app')
