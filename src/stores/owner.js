@@ -21,5 +21,19 @@ export const useOwnerStore = defineStore("owner", {
         console.log(error);
       }
     },
+
+    unauthenticateOwner() {
+      this.isAuthenticated = false;
+      this.owner = {};
+    }, 
+
+    async logout() {
+        try {
+            this.unauthenticateOwner();
+            return await axios.post("/api/owner/logout");
+        } catch (error) {
+            console.log(error);
+        }
+    }
   }
 });
