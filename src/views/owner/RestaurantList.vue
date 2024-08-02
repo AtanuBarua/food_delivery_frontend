@@ -1,7 +1,8 @@
 <template>
     <Layout>
         <template v-slot="">
-            <h1 class="text-2xl font-bold">Welcome to the Dashboard</h1>
+            <h1 class="text-2xl font-bold">Restaurants</h1>
+            <RouterLink :to="{name: 'ownerRestaurantAdd'}">Add restaurant</RouterLink>
         </template>
     </Layout>
 </template>

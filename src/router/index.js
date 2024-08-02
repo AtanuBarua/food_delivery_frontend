@@ -5,6 +5,8 @@ import OwnerRegister from "../views/owner/Register.vue";
 import OwnerHome from "../views/owner/Home.vue";
 import OwnerLogin from "../views/owner/Login.vue";
 import { useOwnerStore } from "@/stores/owner";
+import RestaurantList from "@/views/owner/RestaurantList.vue";
+import RestaurantAdd from "@/views/owner/RestaurantAdd.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,6 +41,22 @@ const router = createRouter({
       path: "/owner",
       name: "ownerHome",
       component: OwnerHome,
+      meta: {
+        middleware: "ownerAuth",
+      },
+    },
+    {
+      path: "/owner/restaurants",
+      name: "ownerRestaurantList",
+      component: RestaurantList,
+      meta: {
+        middleware: "ownerAuth",
+      },
+    },
+    {
+      path: "/owner/restaurant/add",
+      name: "ownerRestaurantAdd",
+      component: RestaurantAdd,
       meta: {
         middleware: "ownerAuth",
       },
