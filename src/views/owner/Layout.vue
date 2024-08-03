@@ -4,6 +4,7 @@
       <nav class="flex flex-row justify-between mx-5">
         <LogoSection />
         <UserSection />
+        <!-- test -->
       </nav>
     </header>
 
