@@ -135,12 +135,15 @@ export default {
     async register(values) {
       try {
         this.disableSubmitBtn = true;
+        await this.$axios.get("/sanctum/csrf-cookie");
         const res = await this.$axios.post("/api/owner/register", values);
-        this.toast.success(res.data.message);
-        this.disableSubmitBtn = false;
+        if (res.status == 200) {
+          this.toast.success(res.data.message);
+          this.$router.push({name: 'ownerLogin'})
+        }
       } catch (error) {
-        console.log(err);
-        this.toast.error(err.response.data.message);
+        this.toast.error("Something went wrong");
+      } finally {
         this.disableSubmitBtn = false;
       }
     },
