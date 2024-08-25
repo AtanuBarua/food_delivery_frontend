@@ -23,7 +23,7 @@
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               />
               <span v-if="errors.name" class="text-red-600 text-xs">{{
-                errors.name
+                errors.name[0]
               }}</span>
               <label
                 for="business_licence"
@@ -45,7 +45,7 @@
               <span
                 v-if="errors.business_licence"
                 class="text-red-600 text-xs"
-                >{{ errors.business_licence }}</span
+                >{{ errors.business_licence[0] }}</span
               >
               <img
                 v-if="businessLicencePreview"
@@ -74,7 +74,7 @@
               <span
                 v-if="errors.vat_certificate"
                 class="text-red-600 text-xs"
-                >{{ errors.vat_certificate }}</span
+                >{{ errors.vat_certificate[0] }}</span
               >
               <img
                 v-if="vatCertificatePreview"
@@ -82,7 +82,6 @@
                 alt="Logo"
                 width="100"
               />
-              <!-- <embed v-if="vatCertificatePreview" :src="vatCertificatePreview" type="application/pdf" width="100%" /> -->
               <label
                 for="tax_identification_number"
                 class="block mb-2 text-sm font-medium text-gray-900"
@@ -98,7 +97,7 @@
               <span
                 v-if="errors.tax_identification_number"
                 class="text-red-600 text-xs"
-                >{{ errors.tax_identification_number }}</span
+                >{{ errors.tax_identification_number[0] }}</span
               >
               <label
                 for="restaurant_menu"
@@ -122,7 +121,7 @@
               <span
                 v-if="errors.restaurant_menu"
                 class="text-red-600 text-xs"
-                >{{ errors.restaurant_menu }}</span
+                >{{ errors.restaurant_menu[0] }}</span
               >
               <img
                 v-if="restaurantMenuPreview"
@@ -145,7 +144,7 @@
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               />
               <span v-if="errors.logo" class="text-red-600 text-xs">{{
-                errors.logo
+                errors.logo[0]
               }}</span>
               <img
                 v-if="logoPreview"
@@ -164,7 +163,7 @@
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               ></textarea>
               <span v-if="errors.address" class="text-red-600 text-xs">{{
-                errors.address
+                errors.address[0]
               }}</span>
               <label
                 for="bank_statement"
@@ -182,7 +181,7 @@
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               />
               <span v-if="errors.bank_statement" class="text-red-600 text-xs">{{
-                errors.utility_bill
+                errors.bank_statement[0]
               }}</span>
               <img
                 v-if="bankStatementPreview"
@@ -206,9 +205,8 @@
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               />
               <span v-if="errors.utility_bill" class="text-red-600 text-xs">{{
-                errors.utility_bill
+                errors.utility_bill[0]
               }}</span>
-              <!-- <ErrorMessage class="text-red-600 text-xs" name="utility_bill" /> -->
               <img
                 v-if="utilityBillPreview"
                 :src="utilityBillPreview"
@@ -265,17 +263,7 @@ export default {
         restaurant_menu: null,
       },
 
-      errors: {
-        name: "",
-        logo: "",
-        address: "",
-        business_licence: "",
-        vat_certificate: "",
-        tax_identification_number: "",
-        bank_statement: "",
-        utility_bill: "",
-        restaurant_menu: "",
-      },
+      errors: {},
 
       validFileTypes: ["image/jpeg", "image/jpg", "image/png"],
       maxFileSize: 2 * 1024 * 1024, //2mb
@@ -304,112 +292,112 @@ export default {
     validateForm() {
       let isValid = true;
       this.errors = {
-        name: "",
-        logo: "",
-        address: "",
-        business_licence: "",
-        vat_certificate: "",
-        tax_identification_number: "",
-        bank_statement: "",
-        utility_bill: "",
-        restaurant_menu: "",
+        name: [],
+        logo: [],
+        address: [],
+        business_licence: [],
+        vat_certificate: [],
+        tax_identification_number: [],
+        bank_statement: [],
+        utility_bill: [],
+        restaurant_menu: [],
       };
 
       // validate name
       if (!this.form.name) {
-        this.errors.name = "This field is required";
+        this.errors.name.push("This field is required");
         isValid = false;
       }
 
       // validate logo
       if (!this.form.logo) {
-        this.errors.logo = "This field is required";
+        this.errors.logo.push("This field is required");
         isValid = false;
       } else if (!this.validFileTypes.includes(this.form.logo.type)) {
         isValid = false;
-        this.errors.logo = "File type must be jpg/jpeg/png";
+        this.errors.logo.push("File type must be jpg/jpeg/png");
       } else if (this.form.logo.size > this.maxFileSize) {
         isValid = false;
-        this.errors.logo = "File size must be within 2mb";
+        this.errors.logo.push("File size must be within 2mb");
       }
 
       // validate business licence
       if (!this.form.business_licence) {
-        this.errors.business_licence = "This field is required";
+        this.errors.business_licence.push("This field is required");
         isValid = false;
       } else if (
         !this.validFileTypes.includes(this.form.business_licence.type)
       ) {
         isValid = false;
-        this.errors.business_licence = "File type must be jpg/jpeg/png";
+        this.errors.business_licence.push("File type must be jpg/jpeg/png");
       }
 
       // validate vat certificate
       if (!this.form.vat_certificate) {
-        this.errors.vat_certificate = "This field is required";
+        this.errors.vat_certificate.push("This field is required");
         isValid = false;
       } else if (
         !this.validFileTypes.includes(this.form.vat_certificate.type)
       ) {
         isValid = false;
-        this.errors.vat_certificate = "File type must be jpg/jpeg/png";
+        this.errors.vat_certificate.push("File type must be jpg/jpeg/png");
       } else if (this.form.vat_certificate.size > this.maxFileSize) {
-        this.errors.vat_certificate = "File size must be within 2mb";
+        this.errors.vat_certificate.push("File size must be within 2mb");
       }
 
       // validate tax identification number
       if (!this.form.tax_identification_number) {
-        this.errors.tax_identification_number = "This field is required";
+        this.errors.tax_identification_number.push("This field is required");
         isValid = false;
       } else if (this.form.tax_identification_number.toString().length != 10) {
         isValid = false;
-        this.errors.tax_identification_number = "Must be 10 digits";
+        this.errors.tax_identification_number.push("Must be 10 digits");
       } else if (this.form.tax_identification_number.size > this.maxFileSize) {
         isValid = false;
-        this.errors.tax_identification_number = "File size must be within 2mb";
+        this.errors.tax_identification_number.push("File size must be within 2mb");
       }
 
       // validate restaurant menu
       if (!this.form.restaurant_menu) {
-        this.errors.restaurant_menu = "This field is required";
+        this.errors.restaurant_menu.push("This field is required");
         isValid = false;
       } else if (
         !this.validFileTypes.includes(this.form.restaurant_menu.type)
       ) {
         isValid = false;
-        this.errors.restaurant_menu = "File type must be jpg/jpeg/png";
+        this.errors.restaurant_menu.push("File type must be jpg/jpeg/png");
       } else if (this.form.restaurant_menu.size > this.maxFileSize) {
-        this.errors.restaurant_menu = "File size must be within 2mb";
+        this.errors.restaurant_menu.push("File size must be within 2mb");
       }
 
       // validate address
       if (!this.form.address) {
-        this.errors.address = "This field is required";
+        this.errors.address.push("This field is required");
         isValid = false;
       }
 
       // validate bank statement
       if (!this.form.bank_statement) {
-        this.errors.bank_statement = "This field is required";
+        this.errors.bank_statement.push("This field is required");
         isValid = false;
       } else if (!this.validFileTypes.includes(this.form.bank_statement.type)) {
         isValid = false;
-        this.errors.bank_statement = "File type must be jpg/jpeg/png";
+        this.errors.bank_statement.push("File type must be jpg/jpeg/png");
       } else if (this.form.bank_statement.size > this.maxFileSize) {
         isValid = false;
-        this.errors.bank_statement = "File size must be within 2mb";
+        this.errors.bank_statement.push("File size must be within 2mb");
       }
 
       // validate utility bill
       if (!this.form.utility_bill) {
-        this.errors.utility_bill = "This field is required";
+        this.errors.utility_bill.push("This field is required");
         isValid = false;
       } else if (!this.validFileTypes.includes(this.form.utility_bill.type)) {
         isValid = false;
-        this.errors.utility_bill = "File type must be jpg/jpeg/png";
+        this.errors.utility_bill.push("File type must be jpg/jpeg/png");
       } else if (this.form.utility_bill.size > this.maxFileSize) {
         isValid = false;
-        this.errors.utility_bill = "File size must be within 2mb";
+        this.errors.utility_bill.push("File size must be within 2mb");
       }
 
       return isValid;
@@ -438,8 +426,7 @@ export default {
               Accept: "application/json",
             },
           });
-          console.log(res.data.message);
-          
+
           if (res.status == 200) {
             this.toast.success(res.data.message);
           } else {
@@ -447,8 +434,18 @@ export default {
           }
         }
       } catch (error) {
-        this.toast.error("Something went wrong");
+        if (error?.response?.data?.message) {
+          if (error?.response?.data?.errors) {
+            this.errors = error.response.data.errors;
+          }
+          this.showErrorMessage(error.response.data.message);
+        } else {
+          this.showErrorMessage();
+        }
       }
+    },
+    showErrorMessage(message = "Something went wrong") {
+      this.toast.error(message);
     },
   },
 };
