@@ -6,146 +6,164 @@
       <div class="flex flex-col">
         <h3 class="text-xl font-bold mb-5">Ready to grow your business?</h3>
 
-        <Form @submit="register" class="flex flex-col">
+        <form @submit.prevent="register" class="flex flex-col">
           <label for="name" class="block mb-2 text-sm font-medium text-gray-900"
             >Business owner full name <span class="text-red-600">*</span></label
           >
-          <Field
-            name="name"
+          <input
+            v-model="formData.name"
             type="text"
             id="name"
-            :rules="validateName"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           />
-          <ErrorMessage class="text-red-600 text-xs" name="name" />
+          <span v-if="errors.name" class="text-red-600 text-xs">{{
+            errors.name[0]
+          }}</span>
           <label
             for="email"
             class="block mb-2 text-sm font-medium text-gray-900"
             >Business email <span class="text-red-600">*</span></label
           >
-          <Field
-            name="email"
+          <input
+            v-model="formData.email"
             type="text"
             id="email"
-            :rules="validateEmail"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           />
-          <ErrorMessage class="text-red-600 text-xs" name="email" />
+          <span v-if="errors.email" class="text-red-600 text-xs">{{
+            errors.email[0]
+          }}</span>
           <label
             for="phone"
             class="block mb-2 text-sm font-medium text-gray-900"
             >Phone number <span class="text-red-600">*</span></label
           >
-          <Field
-            name="phone"
+          <input
+            v-model="formData.phone"
             type="text"
             id="phone"
-            :rules="validatePhone"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           />
-          <ErrorMessage class="text-red-600 text-xs" name="phone" />
+          <span v-if="errors.phone" class="text-red-600 text-xs">{{
+            errors.phone[0]
+          }}</span>
           <label
             for="password"
             class="block mb-2 text-sm font-medium text-gray-900"
             >Password <span class="text-red-600">*</span></label
           >
-          <Field
+          <input
+            v-model="formData.password"
             name="password"
             type="password"
             id="password"
-            :rules="validatePassword"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           />
-          <ErrorMessage class="text-red-600 text-xs" name="password" />
+          <span v-if="errors.password" class="text-red-600 text-xs">{{
+            errors.password[0]
+          }}</span>
           <button
             :disabled="disableSubmitBtn"
             class="bg-fuchsia-600 mt-5 rounded-md p-3 text-white disabled:bg-fuchsia-400"
           >
             Get started
           </button>
-        </Form>
+        </form>
       </div>
     </div>
   </div>
 </template>
 <script>
-import { Form, Field, ErrorMessage } from "vee-validate";
-import { useToast } from "vue-toastification";
-
 export default {
-  components: {
-    Form,
-    Field,
-    ErrorMessage,
-  },
   data() {
     return {
-      name: "",
-      email: "",
-      phone: "",
-      password: "",
+      formData: {
+        name: "",
+        email: "",
+        phone: "",
+        password: "",
+      },
+
       disableSubmitBtn: false,
-      toast: null,
+      errors: {},
     };
   },
-  created() {
-    this.toast = useToast();
-  },
+
   methods: {
-    validateName(value) {
-      if (!value) {
-        return "This field is required";
-      }
-      return true;
-    },
-    validateEmail(value) {
-      if (!value) {
-        return "This field is required";
-      }
-      const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
-      if (!regex.test(value)) {
-        return "This field must be a valid email";
-      }
-      return true;
-    },
-    validatePhone(value) {
-      if (!value) {
-        return "This field is required";
-      }
-      const regex = /^[0-9]/i;
-      if (!regex.test(value)) {
-        return "This field must be a numeric";
-      }
-      if (value.length !== 10) {
-        return "Phone number must be 10 digits";
-      }
-
-      return true;
-    },
-    validatePassword(value) {
-      if (!value) {
-        return "This field is required";
-      }
-      if (value.length < 6) {
-        return "Password must have to minumum 6 characters";
-      }
-      return true;
-    },
-
-    async register(values) {
+    async register() {
       try {
         this.disableSubmitBtn = true;
-        await this.$axios.get("/sanctum/csrf-cookie");
-        const res = await this.$axios.post("/api/owner/register", values);
-        if (res.status == 200) {
-          this.toast.success(res.data.message);
-          this.$router.push({name: 'ownerLogin'})
+        if (this.validateForm()) {
+          await this.axios.get("/sanctum/csrf-cookie");
+          const res = await this.axios.post("/owner/register", this.formData);
+
+          if (res.data.data.status) {
+            this.toast.success(res.data.message);
+            this.$router.push({ name: "ownerLogin" });
+          } else {
+            this.showErrorMessage();
+          }
         }
       } catch (error) {
-        this.toast.error("Something went wrong");
+        if (error?.response?.data?.message) {
+          if (error?.response?.data?.errors) {
+            this.errors = error.response.data.errors;
+          }
+          this.showErrorMessage(error.response.data.message);
+        } else {
+          this.showErrorMessage();
+        }
       } finally {
         this.disableSubmitBtn = false;
       }
+    },
+    showErrorMessage(message = "Something went wrong") {
+      this.toast.error(message);
+    },
+    validateForm() {
+      const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
+      const phoneRegex = /^[0-9]/i;
+
+      this.errors = {
+        name: [],
+        email: [],
+        phone: [],
+        password: [],
+      };
+      let isValid = true;
+
+      if (!this.formData.name) {
+        isValid = false;
+        this.errors.name.push("This field is required");
+      }
+
+      if (!this.formData.email) {
+        isValid = false;
+        this.errors.email.push("This field is required");
+      } else if (!emailRegex.test(this.formData.email)) {
+        this.errors.email.push("This field must be a valid email");
+      }
+
+      if (!this.formData.phone) {
+        isValid = false;
+        this.errors.phone.push("This field is required");
+      } else if (!phoneRegex.test(this.formData.phone)) {
+        isValid = false;
+        this.errors.phone.push("This field must be a numeric");
+      } else if (this.formData.phone.length != 10) {
+        isValid = false;
+        this.errors.phone.push("Phone number must be 10 digits");
+      }
+
+      if (!this.formData.password) {
+        isValid = false;
+        this.errors.password.push("This field is required");
+      } else if (this.formData.password.toString().length < 6) {
+        isValid = false;
+        this.errors.password.push("Password must be atleast 6 characters");
+      }
+
+      return isValid;
     },
   },
 };

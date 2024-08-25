@@ -1,121 +1,125 @@
 <template>
-    <div
-      class="h-screen bg-[url('../assets/cook.jpg')] bg-no-repeat bg-contain flex justify-center items-center"
-    >
-      <div class="mx-auto w-[25rem] h-[32rem] bg-white shadow-xl rounded-md p-7">
-        <div class="flex flex-col">
-          <h3 class="text-xl font-bold mb-5">Ready to grow your business?</h3>
-  
-          <Form @submit="login" class="flex flex-col">
-            <label
-              for="email"
-              class="block mb-2 text-sm font-medium text-gray-900"
-              >Business email <span class="text-red-600">*</span></label
-            >
-            <Field
-              name="email"
-              type="text"
-              id="email"
-              :rules="validateEmail"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            />
-            <ErrorMessage class="text-red-600 text-xs" name="email" />
-    
-            <label
-              for="password"
-              class="block mb-2 text-sm font-medium text-gray-900"
-              >Password <span class="text-red-600">*</span></label
-            >
-            <Field
-              name="password"
-              type="password"
-              id="password"
-              :rules="validatePassword"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            />
-            <ErrorMessage class="text-red-600 text-xs" name="password" />
-            <button
-              :disabled="disableSubmitBtn"
-              class="bg-fuchsia-600 mt-5 rounded-md p-3 text-white disabled:bg-fuchsia-400"
-            >
-              Login
-            </button>
-          </Form>
-        </div>
+  <div
+    class="h-screen bg-[url('../assets/cook.jpg')] bg-no-repeat bg-contain flex justify-center items-center"
+  >
+    <div class="mx-auto w-[25rem] h-[32rem] bg-white shadow-xl rounded-md p-7">
+      <div class="flex flex-col">
+        <h3 class="text-xl font-bold mb-5">Ready to grow your business?</h3>
+
+        <form @submit.prevent="login" class="flex flex-col">
+          <label
+            for="email"
+            class="block mb-2 text-sm font-medium text-gray-900"
+            >Business email <span class="text-red-600">*</span></label
+          >
+          <input
+            v-model="formData.email"
+            type="text"
+            id="email"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          />
+          <span class="text-red-600 text-xs" v-if="errors?.email">{{
+            errors.email[0]
+          }}</span>
+
+          <label
+            for="password"
+            class="block mb-2 text-sm font-medium text-gray-900"
+            >Password <span class="text-red-600">*</span></label
+          >
+          <input
+            v-model="formData.password"
+            type="password"
+            id="password"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          />
+          <span class="text-red-600 text-xs" v-if="errors?.password">{{
+            errors.password[0]
+          }}</span>
+          <button
+            :disabled="disableSubmitBtn"
+            class="bg-fuchsia-600 mt-5 rounded-md p-3 text-white disabled:bg-fuchsia-400"
+          >
+            Login
+          </button>
+        </form>
       </div>
     </div>
-  </template>
-  <script>
-  import { Form, Field, ErrorMessage } from "vee-validate";
-  import { useToast } from "vue-toastification";
-  import { useOwnerStore } from "@/stores/owner";
+  </div>
+</template>
+<script>
+import { useOwnerStore } from "@/stores/owner";
 
-  export default {
-    components: {
-      Form,
-      Field,
-      ErrorMessage,
-    },
-    setup() {
-      const ownerStore = new useOwnerStore();
-      return { ownerStore }
-    },
-    data() {
-      return {
-        name: "",
+export default {
+  setup() {
+    const ownerStore = new useOwnerStore();
+    return { ownerStore };
+  },
+  data() {
+    return {
+      formData: {
         email: "",
-        phone: "",
         password: "",
-        disableSubmitBtn: false,
-        toast: null,
-      };
-    },
-    async created() {
-      this.toast = useToast();
-    },
-    methods: {
-      validateName(value) {
-        if (!value) {
-          return "This field is required";
-        }
-        return true;
       },
-      validateEmail(value) {
-        if (!value) {
-          return "This field is required";
-        }
-        const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
-        if (!regex.test(value)) {
-          return "This field must be a valid email";
-        }
-        return true;
-      },
-      validatePassword(value) {
-        if (!value) {
-          return "This field is required";
-        }
-        return true;
-      },
-  
-      async login(formData) {
-        try {
-          this.disableSubmitBtn = true;
-          const res = await this.ownerStore.login(formData);
-          console.log(res);
-          if (res.data.status_code == 200) {
+      disableSubmitBtn: false,
+      errors: {},
+    };
+  },
+  methods: {
+    async login() {
+      try {
+        this.disableSubmitBtn = true;
+        if (this.validateForm()) {
+          const res = await this.ownerStore.login(this.formData);
+
+          if (res?.data?.data?.status) {
             this.toast.success(res.data.message);
-            this.$router.push({name: 'ownerHome'})
+            this.$router.push({ name: "ownerHome" });
+          } else if (res?.response?.data?.message) {
+            if (res?.response?.data?.errors) {
+              this.errors = res.response.data.errors;
+            }
+
+            this.showErrorMessage(res.response.data.message);
           } else {
-            this.toast.error(res.data.message);
+            this.showErrorMessage();
           }
-        } catch (error) {
-          console.log(error);
-          this.toast.error("Something went wrong");
-        } finally {
-          this.disableSubmitBtn = false;
         }
-      },
+      } catch (error) {
+        this.showErrorMessage();
+      } finally {
+        this.disableSubmitBtn = false;
+      }
     },
-  };
-  </script>
-  
+    validateForm() {
+      let isValid = true;
+      this.errors = {
+        email: [],
+        password: [],
+      };
+      const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
+
+      if (!this.formData.email) {
+        this.errors.email.push("This field is required");
+        isValid = false;
+      } else if (!regex.test(this.formData.email)) {
+        this.errors.email.push("This field must be a valid email");
+        isValid = false;
+      }
+
+      if (!this.formData.password) {
+        this.errors.password.push("This field is required");
+        isValid = false;
+      } else if (this.formData.password.toString().length < 6) {
+        isValid = false;
+        this.errors.password.push("Password must be atleast 6 characters");
+      }
+
+      return isValid;
+    },
+    showErrorMessage(message = "Something went wrong") {
+      this.toast.error(message);
+    },
+  },
+};
+</script>
