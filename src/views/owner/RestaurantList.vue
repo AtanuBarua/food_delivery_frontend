@@ -32,7 +32,7 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        <tr v-for="restaurant in restaurants">
+                        <tr v-if="restaurants.length > 0" v-for="restaurant in restaurants">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-500">
                                     {{ restaurant.name }}
@@ -57,6 +57,7 @@
                                     class="bg-teal-500 px-4 py-3 rounded-lg text-white">Edit</RouterLink>
                             </td>
                         </tr>
+                        <p v-else class="text-red-700">No data found</p>
                     </tbody>
                 </table>
             </div>
