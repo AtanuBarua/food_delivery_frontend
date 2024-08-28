@@ -229,17 +229,12 @@
 
 <script>
 import Layout from "./Layout.vue";
-import { Form, Field, ErrorMessage } from "vee-validate";
-// import axios from "axios";
 import { useOwnerStore } from "@/stores/owner";
 
 export default {
   name: "Home",
   components: {
-    Layout,
-    Form,
-    Field,
-    ErrorMessage,
+    Layout
   },
   data() {
     return {
@@ -269,14 +264,7 @@ export default {
       maxFileSize: 2 * 1024 * 1024, //2mb
     };
   },
-  mounted() {
-    this.check();
-  },
   methods: {
-    check() {
-      const store = new useOwnerStore();
-      const isAuthenticated = store.isAuthenticated;
-    },
     onFileChange(event, preview, model) {
       const file = (this.form[model] = event.target.files[0]);
 
@@ -354,7 +342,9 @@ export default {
         this.errors.tax_identification_number.push("Must be 10 digits");
       } else if (this.form.tax_identification_number.size > this.maxFileSize) {
         isValid = false;
-        this.errors.tax_identification_number.push("File size must be within 2mb");
+        this.errors.tax_identification_number.push(
+          "File size must be within 2mb"
+        );
       }
 
       // validate restaurant menu
@@ -403,23 +393,24 @@ export default {
       return isValid;
     },
 
-    async formSubmit(formData) {
-      try {
-        if (this.validateForm()) {
-          formData = new FormData();
-          formData.append("name", this.form.name);
-          formData.append("logo", this.form.logo);
-          formData.append("address", this.form.address);
-          formData.append("vat_certificate", this.form.vat_certificate);
-          formData.append("business_licence", this.form.business_licence);
-          formData.append(
-            "tax_identification_number",
-            this.form.tax_identification_number
-          );
-          formData.append("bank_statement", this.form.bank_statement);
-          formData.append("utility_bill", this.form.utility_bill);
-          formData.append("restaurant_menu", this.form.restaurant_menu);
+    async formSubmit() {
+      if (this.validateForm()) {
+        formData = new FormData();
+        formData.append("name", this.form.name);
+        formData.append("logo", this.form.logo);
+        formData.append("address", this.form.address);
+        formData.append("vat_certificate", this.form.vat_certificate);
+        formData.append("business_licence", this.form.business_licence);
+        formData.append(
+          "tax_identification_number",
+          this.form.tax_identification_number
+        );
+        formData.append("bank_statement", this.form.bank_statement);
+        formData.append("utility_bill", this.form.utility_bill);
+        formData.append("restaurant_menu", this.form.restaurant_menu);
 
+        try {
+          this.disableSubmitBtn = true;
           const res = await this.axios.post("/owner/restaurant/add", formData, {
             headers: {
               "Content-Type": "multipart/form-data",
@@ -429,18 +420,21 @@ export default {
 
           if (res.status == 200) {
             this.toast.success(res.data.message);
+            this.$router.push({name: 'ownerRestaurantList'})
           } else {
             this.toast.error("Something went wrong");
           }
-        }
-      } catch (error) {
-        if (error?.response?.data?.message) {
-          if (error?.response?.data?.errors) {
-            this.errors = error.response.data.errors;
+        } catch (error) {
+          if (error.response?.data?.message) {
+            if (error.response?.data?.errors) {
+              this.errors = error.response.data.errors;
+            }
+            this.showErrorMessage(error.response.data.message);
+          } else {
+            this.showErrorMessage();
           }
-          this.showErrorMessage(error.response.data.message);
-        } else {
-          this.showErrorMessage();
+        } finally {
+          this.disableSubmitBtn = false;
         }
       }
     },
